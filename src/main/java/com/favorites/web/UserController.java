@@ -13,6 +13,7 @@ import com.favorites.domain.Favorites;
 import com.favorites.domain.User;
 import com.favorites.domain.UserRepository;
 import com.favorites.domain.result.ExceptionMsg;
+import com.favorites.domain.result.LoginResult;
 import com.favorites.domain.result.Response;
 import com.favorites.domain.result.ResponseData;
 import com.favorites.service.ConfigService;
@@ -38,7 +39,10 @@ public class UserController extends BaseController {
 				return new ResponseData(ExceptionMsg.LoginNameOrPassWordError);
 			}
 			getSession().setAttribute(Const.LOGIN_SESSION_KEY, loginUser);
-			return new ResponseData(ExceptionMsg.SUCCESS);
+			LoginResult ret=new LoginResult();
+			ret.setUserId(loginUser.getId());
+			ret.setToken(getSession().getId());
+			return new ResponseData(ExceptionMsg.SUCCESS,ret);
 		} catch (Exception e) {
 			// TODO: handle exception
 			logger.error("login failed, ", e);
