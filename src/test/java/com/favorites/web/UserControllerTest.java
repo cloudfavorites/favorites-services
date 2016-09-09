@@ -11,7 +11,7 @@ public class UserControllerTest {
 
 
 	//private String baseUrl="http://app.zhongxinvc.com:8000/zc-app";
-	private String baseUrl="http://192.168.0.60:9090";
+	private String baseUrl="http://192.168.0.59:9090";
 	//private String baseUrl="http://localhost:9090";
 	
 
