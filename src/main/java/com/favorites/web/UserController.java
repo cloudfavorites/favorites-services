@@ -45,6 +45,7 @@ public class UserController extends BaseController {
 			getSession().setAttribute(Const.LOGIN_SESSION_KEY, loginUser);
 			LoginResult ret=new LoginResult();
 			ret.setUserId(loginUser.getId());
+			ret.setUserName(loginUser.getUserName());
 			ret.setToken(getSession().getId());
 			return new ResponseData(ExceptionMsg.SUCCESS,ret);
 		} catch (Exception e) {
