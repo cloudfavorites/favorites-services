@@ -1,9 +1,16 @@
 package com.favorites.web;
 
+import java.sql.Timestamp;
+import java.util.UUID;
+
 import javax.annotation.Resource;
+import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.favorites.comm.Const;
 import com.favorites.comm.aop.LoggerManage;
 import com.favorites.comm.utils.DateUtils;
+import com.favorites.comm.utils.MD5Util;
+import com.favorites.comm.utils.MessageUtil;
 import com.favorites.domain.Favorites;
 import com.favorites.domain.User;
 import com.favorites.domain.UserRepository;
@@ -31,6 +40,14 @@ public class UserController extends BaseController {
 	private ConfigService configService;
 	@Resource
 	private FavoritesService favoritesService;
+	@Resource
+    private JavaMailSender mailSender;
+	@Value("${spring.mail.username}")
+	private String mailFrom;
+	@Value("${mail.subject.forgotpassword}")
+	private String mailSubject;
+	@Value("${mail.content.forgotpassword}")
+	private String mailContent;
 	
 	
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
@@ -150,6 +167,101 @@ public class UserController extends BaseController {
 			userRepository.setUserName(userParam.getNewUserName(), user.getEmail());
 		} catch (Exception e) {
 			logger.error("用户名修改异常：",e);
+			return result(ExceptionMsg.FAILED);
+		}
+		return result();
+	}
+	
+	
+	/**
+	 * 忘记密码-发送重置邮件
+	 * @param email
+	 * @return
+	 */
+	@RequestMapping(value = "/sendForgotPasswordEmail", method = RequestMethod.POST)
+	@LoggerManage(description="发送忘记密码邮件")
+	public Response sendForgotPasswordEmail(String email) {
+		if(StringUtils.isBlank(email)){
+			return result(ExceptionMsg.ParamError);
+		}
+		try {
+			User registUser = userRepository.findByEmail(email);
+			if (null == registUser) {
+				return result(ExceptionMsg.EmailNotRegister);
+			}	
+			String secretKey = UUID.randomUUID().toString(); // 密钥
+            Timestamp outDate = new Timestamp(System.currentTimeMillis() + 30 * 60 * 1000);// 30分钟后过期
+            long date = outDate.getTime() / 1000 * 1000;
+            userRepository.setOutDateAndValidataCode(outDate+"", secretKey, email);
+            String key =email + "$" + date + "$" + secretKey;
+            System.out.println(" key>>>"+key);
+            String digitalSignature = MD5Util.encrypt(key);// 数字签名
+            String path = this.getRequest().getContextPath();
+            String basePath = this.getRequest().getScheme() + "://"
+                    + this.getRequest().getServerName() + ":"
+                    + this.getRequest().getServerPort() + path + "/";
+            String resetPassHref = basePath + "newPassword?sid="
+                    + digitalSignature +"&email="+email;
+            String emailContent = MessageUtil.getMessage(mailContent, resetPassHref);					
+	        MimeMessage mimeMessage = mailSender.createMimeMessage();	        
+	        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+	        helper.setFrom(mailFrom);
+	        helper.setTo(email);
+	        helper.setSubject(mailSubject);
+	        helper.setText(emailContent, true);
+	        mailSender.send(mimeMessage);
+		} catch (Exception e) {
+			logger.error("发送忘记密码邮件异常：",e);
+			return result(ExceptionMsg.FAILED);
+		}
+		return result();
+	}
+	
+	/**
+	 * 忘记密码-设置新密码
+	 * @param newpwd
+	 * @param email
+	 * @param sid
+	 * @return
+	 */
+	@RequestMapping(value = "/setNewPassword", method = RequestMethod.POST)
+	@LoggerManage(description="设置新密码")
+	public Response setNewPassword(String newpwd, String email, String sid) {
+		if(StringUtils.isBlank(newpwd) || StringUtils.isBlank(email) || StringUtils.isBlank(sid)){
+			return result(ExceptionMsg.ParamError);
+		}
+		try {
+			User user = userRepository.findByEmail(email);
+			Timestamp outDate = Timestamp.valueOf(user.getOutDate());
+			if(outDate.getTime() <= System.currentTimeMillis()){ //表示已经过期
+				return result(ExceptionMsg.LinkOutdated);
+            }
+            String key = user.getEmail()+"$"+outDate.getTime()/1000*1000+"$"+user.getValidataCode();//数字签名
+            String digitalSignature = MD5Util.encrypt(key);
+            if(!digitalSignature.equals(sid)) {
+            	 return result(ExceptionMsg.LinkOutdated);
+            }
+            userRepository.setNewPassword(getPwd(newpwd), email);
+		} catch (Exception e) {
+			// TODO: handle exception
+			logger.error("设置新密码异常： ", e);
+			return result(ExceptionMsg.FAILED);
+		}
+		return result();
+	}
+	
+	/**
+	 * 注销
+	 * @return
+	 */
+	@RequestMapping(value="/logout", method=RequestMethod.POST)
+	@LoggerManage(description="注销")
+	public Response logout() {
+		try {
+			getSession().removeAttribute(Const.LOGIN_SESSION_KEY);
+		} catch (Exception e) {
+			// TODO: handle exception
+			logger.error("注销异常： ", e);
 			return result(ExceptionMsg.FAILED);
 		}
 		return result();
