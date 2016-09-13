@@ -34,4 +34,6 @@ public interface FavoritesRepository extends JpaRepository<Favorites, Long> {
 	void updateNameById(@Param("id") Long id,@Param("lastModifyTime") Long lastModifyTime,@Param("name") String name);
 	@Query("select id from Favorites where name=?1")
 	List<Long> findIdByName(String name);
+	
+	Favorites findById(Long id);
 }

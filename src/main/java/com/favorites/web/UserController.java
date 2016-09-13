@@ -22,7 +22,10 @@ import com.favorites.comm.utils.DateUtils;
 import com.favorites.comm.utils.MD5Util;
 import com.favorites.comm.utils.MessageUtil;
 import com.favorites.domain.CollectRepository;
+import com.favorites.domain.Config;
+import com.favorites.domain.ConfigRepository;
 import com.favorites.domain.Favorites;
+import com.favorites.domain.FavoritesRepository;
 import com.favorites.domain.FollowRepository;
 import com.favorites.domain.User;
 import com.favorites.domain.UserRepository;
@@ -50,6 +53,10 @@ public class UserController extends BaseController {
 	private CollectRepository collectRespository;
 	@Autowired
 	private FollowRepository followRespository;
+	@Autowired
+	private FavoritesRepository favoritesRepository;
+	@Autowired
+	private ConfigRepository configRepository;
 	@Resource
     private JavaMailSender mailSender;
 	@Value("${spring.mail.username}")
@@ -193,11 +200,7 @@ public class UserController extends BaseController {
             String key =email + "$" + date + "$" + secretKey;
             System.out.println(" key>>>"+key);
             String digitalSignature = MD5Util.encrypt(key);// 数字签名
-            String path = this.getRequest().getContextPath();
-            String basePath = this.getRequest().getScheme() + "://"
-                    + this.getRequest().getServerName() + ":"
-                    + this.getRequest().getServerPort() + path + "/";
-            String resetPassHref = basePath + "newPassword?sid="
+            String resetPassHref = webPath + "newPassword?sid="
                     + digitalSignature +"&email="+email;
             String emailContent = MessageUtil.getMessage(mailContent, resetPassHref);					
 	        MimeMessage mimeMessage = mailSender.createMimeMessage();	        
@@ -209,42 +212,6 @@ public class UserController extends BaseController {
 	        mailSender.send(mimeMessage);
 		} catch (Exception e) {
 			logger.error("发送忘记密码邮件异常：",e);
-			return result(ExceptionMsg.FAILED);
-		}
-		return result();
-	}
-	
-	/**
-	 * 忘记密码-设置新密码
-	 * @param newpwd
-	 * @param email
-	 * @param sid
-	 * @return
-	 */
-	@RequestMapping(value = "/setNewPassword", method = RequestMethod.POST)
-	@LoggerManage(description="设置新密码")
-	public Response setNewPassword(String newpwd, String email, String sid) {
-		if(StringUtils.isBlank(newpwd) || StringUtils.isBlank(email) || StringUtils.isBlank(sid)){
-			return result(ExceptionMsg.ParamError);
-		}
-		try {
-			User user = userRepository.findByEmail(email);
-			if (null == user) {
-				return result(ExceptionMsg.EmailNotRegister);
-			}
-			Timestamp outDate = Timestamp.valueOf(user.getOutDate());
-			if(outDate.getTime() <= System.currentTimeMillis()){ //表示已经过期
-				return result(ExceptionMsg.LinkOutdated);
-            }
-            String key = user.getEmail()+"$"+outDate.getTime()/1000*1000+"$"+user.getValidataCode();//数字签名
-            String digitalSignature = MD5Util.encrypt(key);
-            if(!digitalSignature.equals(sid)) {
-            	 return result(ExceptionMsg.LinkOutdated);
-            }
-            userRepository.setNewPassword(getPwd(newpwd), email);
-		} catch (Exception e) {
-			// TODO: handle exception
-			logger.error("设置新密码异常： ", e);
 			return result(ExceptionMsg.FAILED);
 		}
 		return result();
@@ -279,6 +246,51 @@ public class UserController extends BaseController {
 			return new ResponseData(ExceptionMsg.FAILED);
 		}
 		return new ResponseData(ExceptionMsg.SUCCESS,ret);
+	}
+	
+	/**
+	 * 属性修改
+	 * @param userId
+	 * @param type
+	 * @param defaultFavorites
+	 * @return
+	 */
+	@RequestMapping(value = "/updateConfig", method = RequestMethod.POST)
+	@LoggerManage(description="属性修改")
+	public Response updateConfig(Long userId, String type,String defaultFavorites){
+		if(null == userId || StringUtils.isBlank(type)){
+			return result(ExceptionMsg.ParamError);
+		}
+		if(!"defaultCollectType".equals(type) && !"defaultModel".equals(type) && !"defaultFavorites".equals(type)){
+			return result(ExceptionMsg.UserConfigTypeNotExist);
+		}
+		try {
+			User user = userRepository.findOne(userId);
+			if(null == user){
+				return result(ExceptionMsg.UserNotExist);
+			}
+			Config config = configRepository.findByUserId(userId);
+			if (null == config || null == config.getId()){
+				return result(ExceptionMsg.UserConfigNotExist);
+			}
+			if("defaultFavorites".equals(type)){
+				if(StringUtils.isBlank(defaultFavorites)){
+					return result(ExceptionMsg.ParamError);
+				}
+				Favorites favorites = favoritesRepository.findById(Long.parseLong(defaultFavorites));
+				if(null == favorites){
+					return result(ExceptionMsg.FavoritesNotExist);
+				}
+				if(!userId.equals(favorites.getUserId())){
+					return result(ExceptionMsg.FavoritesNotUsers);
+				}
+			}
+			configService.updateConfig(config.getId(), type,defaultFavorites);
+		} catch (Exception e) {
+			logger.error("属性修改异常：",e);
+			return result(ExceptionMsg.FAILED);
+		}
+		return result();
 	}
 	
 }

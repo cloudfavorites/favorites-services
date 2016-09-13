@@ -16,9 +16,13 @@ public enum ExceptionMsg {
     OldPassWordWrong("000107","原始密码错误"),
     UserNameLengthLimit("000108","用户名长度超限"),
     UserNameSame("000109","新用户名与原用户名一致"),
+    UserConfigNotExist("000110","用户配置不存在"),
+    UserConfigTypeNotExist("000111","用户配置类型不存在"),
 
     FavoritesNameIsNull("000200","收藏夹名称不能为空"),
     FavoritesNameUsed("000201","收藏夹名称已被创建"),
+    FavoritesNotExist("000202","收藏夹不存在"),
+    FavoritesNotUsers("000203","收藏夹不为该用户所有"),
     
     CollectExist("000300","该文章已被收藏"),
     

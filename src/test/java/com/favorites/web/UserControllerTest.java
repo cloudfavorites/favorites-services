@@ -84,4 +84,32 @@ public class UserControllerTest {
 		System.out.println(res);
 	}
 	
+	/**
+	 * 发送重置密码邮件
+	 */
+	@Test
+	public void sendForgotPasswordEmail(){
+		String url = baseUrl + "/user/sendForgotPasswordEmail";
+		Map<String, String> contents = new HashMap<String, String>();
+//		contents.put("email","yuyang_053@163.com");
+		String res = SimpleHttpUtils.httpPost(url,contents); 
+		System.out.println(res);
+	}
+	
+	/**
+	 * 属性修改
+	 */
+	@Test
+	public void updateConfig(){
+		String url = baseUrl + "/user/updateConfig";
+		Map<String, Object> contents = new HashMap<String, Object>();
+		contents.put("userId",1);
+//		contents.put("type","defaultFavorites");
+//		contents.put("type","defaultCollectType");
+		contents.put("type","defaultModel");
+//		contents.put("defaultFavorites","73");
+		String res = SimpleHttpUtils.httpPost(url,contents); 
+		System.out.println(res);
+	}
+	
 }
