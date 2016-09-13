@@ -229,6 +229,9 @@ public class UserController extends BaseController {
 		}
 		try {
 			User user = userRepository.findByEmail(email);
+			if (null == user) {
+				return result(ExceptionMsg.EmailNotRegister);
+			}
 			Timestamp outDate = Timestamp.valueOf(user.getOutDate());
 			if(outDate.getTime() <= System.currentTimeMillis()){ //表示已经过期
 				return result(ExceptionMsg.LinkOutdated);
@@ -242,23 +245,6 @@ public class UserController extends BaseController {
 		} catch (Exception e) {
 			// TODO: handle exception
 			logger.error("设置新密码异常： ", e);
-			return result(ExceptionMsg.FAILED);
-		}
-		return result();
-	}
-	
-	/**
-	 * 注销
-	 * @return
-	 */
-	@RequestMapping(value="/logout", method=RequestMethod.POST)
-	@LoggerManage(description="注销")
-	public Response logout() {
-		try {
-			getSession().removeAttribute(Const.LOGIN_SESSION_KEY);
-		} catch (Exception e) {
-			// TODO: handle exception
-			logger.error("注销异常： ", e);
 			return result(ExceptionMsg.FAILED);
 		}
 		return result();
