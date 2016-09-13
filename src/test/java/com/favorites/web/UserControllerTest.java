@@ -56,30 +56,32 @@ public class UserControllerTest {
 	}
 	
 	/**
-	 * 简介修改
+	 * 个人信息修改（简介&用户名）
 	 */
 	@Test
-	public void updateIntroduction(){
+	public void updateUserInfo(){
 		String res = "";
-		String url = baseUrl + "/user/updateIntroduction";
+		String url = baseUrl + "/user/updateUserInfo";
 		Map<String, String> contents = new HashMap<String, String>();
-		contents.put("userId", "1");
-		contents.put("introduction", "身怀宝藏，总会遇见饿狼");
+		contents.put("userId", "10");
+		contents.put("introduction", "超级管理员");
+		contents.put("newUserName", "admin");
 		res = SimpleHttpUtils.httpPost(url,contents); 
 		System.out.println(res);
 	}
 	
+	
 	/**
-	 * 用户名修改
+	 * 获取用户个人信息
 	 */
 	@Test
-	public void updateUserName(){
+	public void getUserInformation(){
 		String res = "";
-		String url = baseUrl + "/user/updateUserName";
+		String url = baseUrl + "/user/getUserInformation";
 		Map<String, String> contents = new HashMap<String, String>();
-		contents.put("userId", "1");
-		contents.put("newUserName", "Smilence");
+		contents.put("userId", "10");
 		res = SimpleHttpUtils.httpPost(url,contents); 
 		System.out.println(res);
 	}
+	
 }

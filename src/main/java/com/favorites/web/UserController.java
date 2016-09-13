@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -20,13 +21,18 @@ import com.favorites.comm.aop.LoggerManage;
 import com.favorites.comm.utils.DateUtils;
 import com.favorites.comm.utils.MD5Util;
 import com.favorites.comm.utils.MessageUtil;
+import com.favorites.domain.CollectRepository;
 import com.favorites.domain.Favorites;
+import com.favorites.domain.FollowRepository;
 import com.favorites.domain.User;
 import com.favorites.domain.UserRepository;
+import com.favorites.domain.enums.FollowStatus;
+import com.favorites.domain.enums.IsDelete;
 import com.favorites.domain.result.ExceptionMsg;
 import com.favorites.domain.result.LoginResult;
 import com.favorites.domain.result.Response;
 import com.favorites.domain.result.ResponseData;
+import com.favorites.domain.result.UserInformationResult;
 import com.favorites.param.UserParam;
 import com.favorites.service.ConfigService;
 import com.favorites.service.FavoritesService;
@@ -40,6 +46,10 @@ public class UserController extends BaseController {
 	private ConfigService configService;
 	@Resource
 	private FavoritesService favoritesService;
+	@Autowired
+	private CollectRepository collectRespository;
+	@Autowired
+	private FollowRepository followRespository;
 	@Resource
     private JavaMailSender mailSender;
 	@Value("${spring.mail.username}")
@@ -48,6 +58,8 @@ public class UserController extends BaseController {
 	private String mailSubject;
 	@Value("${mail.content.forgotpassword}")
 	private String mailContent;
+	@Value("${favorites.web.path}")
+	private String webPath;
 	
 	
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
@@ -125,49 +137,33 @@ public class UserController extends BaseController {
 		return result();
 	}
 	
-	@RequestMapping(value="/updateIntroduction",method=RequestMethod.POST)
-	@LoggerManage(description="简介修改")
-	public Response updateIntroduction(UserParam userParam){
-		if(null == userParam || null == userParam.getUserId() || StringUtils.isBlank(userParam.getIntroduction())){
+	@RequestMapping(value="/updateUserInfo",method=RequestMethod.POST)
+	@LoggerManage(description="个人信息修改（简介&用户名）")
+	public Response updateUserInfo(UserParam userParam){
+		if(null == userParam || null == userParam.getUserId() || StringUtils.isBlank(userParam.getIntroduction()) 
+				|| StringUtils.isBlank(userParam.getNewUserName())){
 			return result(ExceptionMsg.ParamError);
 		}
 		try {
+			if(userParam.getNewUserName().length() > 12){
+				return result(ExceptionMsg.UserNameLengthLimit);
+			}
 			User user = userRepository.findOne(userParam.getUserId());
 			if(null == user){
 				return result(ExceptionMsg.UserNotExist);
 			}
-			userRepository.setIntroduction(userParam.getIntroduction(), user.getEmail());
+			if(!user.getUserName().equals(userParam.getNewUserName())){
+				User newUser = userRepository.findByUserName(userParam.getNewUserName());
+				if(null != newUser){
+					return result(ExceptionMsg.UserNameUsed);
+				}
+				userRepository.setUserName(userParam.getNewUserName(), user.getEmail());
+			}
+			if(!userParam.getIntroduction().equals(user.getIntroduction())){
+				userRepository.setIntroduction(userParam.getIntroduction(), user.getEmail());
+			}
 		} catch (Exception e) {
 			logger.error("简介修改异常：",e);
-			return result(ExceptionMsg.FAILED);
-		}
-		return result();
-	}
-	
-	@RequestMapping(value="/updateUserName",method=RequestMethod.POST)
-	@LoggerManage(description="用户名修改")
-	public Response updateUserName(UserParam userParam){
-		if(null == userParam || null == userParam.getUserId() || StringUtils.isBlank(userParam.getNewUserName())){
-			return result(ExceptionMsg.ParamError);
-		}
-		if(userParam.getNewUserName().length() > 12){
-			return result(ExceptionMsg.UserNameLengthLimit);
-		}
-		try {
-			User user = userRepository.findOne(userParam.getUserId());
-			if(null == user){
-				return result(ExceptionMsg.UserNotExist);
-			}
-			if(user.getUserName().equals(userParam.getNewUserName())){
-				return result(ExceptionMsg.UserNameSame);
-			}
-			User newUser = userRepository.findByUserName(userParam.getNewUserName());
-			if(null != newUser){
-				return result(ExceptionMsg.UserNameUsed);
-			}
-			userRepository.setUserName(userParam.getNewUserName(), user.getEmail());
-		} catch (Exception e) {
-			logger.error("用户名修改异常：",e);
 			return result(ExceptionMsg.FAILED);
 		}
 		return result();
@@ -266,6 +262,37 @@ public class UserController extends BaseController {
 			return result(ExceptionMsg.FAILED);
 		}
 		return result();
+	}
+	
+	/**
+	 * 获取用户个人信息
+	 * @return
+	 */
+	@RequestMapping(value="/getUserInformation",method=RequestMethod.POST)
+	@LoggerManage(description="获取用户个人信息")
+	public ResponseData getUserInformation(Long userId){
+		UserInformationResult ret = new UserInformationResult();
+		if(null == userId){
+			return new ResponseData(ExceptionMsg.ParamError);
+		}
+		User user = userRepository.findOne(userId);
+		if(null == user){
+			return new ResponseData(ExceptionMsg.UserNotExist);
+		}
+		try {
+			BeanUtils.copyProperties(user, ret);
+			ret.setProfilePicture(webPath + user.getProfilePicture());
+			Long collectCount = collectRespository.countByUserIdAndIsDelete(userId, IsDelete.NO);
+			ret.setCollectCount(collectCount);
+			Long followCount = followRespository.countByUserIdAndStatus(userId, FollowStatus.FOLLOW);
+			ret.setFollowCount(followCount);
+			Long followedCount = followRespository.countByFollowIdAndStatus(userId, FollowStatus.FOLLOW);
+			ret.setFollowedCount(followedCount);
+		} catch (Exception e) {
+			logger.error("获取用户个人信息异常：",e);
+			return new ResponseData(ExceptionMsg.FAILED);
+		}
+		return new ResponseData(ExceptionMsg.SUCCESS,ret);
 	}
 	
 }

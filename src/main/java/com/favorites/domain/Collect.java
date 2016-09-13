@@ -4,9 +4,13 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Transient;
+
+import com.favorites.domain.enums.IsDelete;
 
 @Entity
 public class Collect  implements Serializable {
@@ -34,7 +38,8 @@ public class Collect  implements Serializable {
 	@Column(nullable = true)
 	private String remark;
 	@Column(nullable = false)
-	private String isDelete;
+	@Enumerated(EnumType.STRING) 
+	private IsDelete isDelete;
 	@Column(nullable = false)
 	private Long createTime;
 	@Column(nullable = false)
@@ -128,11 +133,11 @@ public class Collect  implements Serializable {
 		this.remark = remark;
 	}
 
-	public String getIsDelete() {
+	public IsDelete getIsDelete() {
 		return isDelete;
 	}
 
-	public void setIsDelete(String isDelete) {
+	public void setIsDelete(IsDelete isDelete) {
 		this.isDelete = isDelete;
 	}
 
