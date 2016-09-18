@@ -1,11 +1,12 @@
 package com.favorites.param;
 
 public class UserParam extends BaseParam {
-	private Long userId;
-	private String newPwd;
-	private String oldPwd;
-	private String introduction;
-	private String newUserName;
+	private Long userId;// 用户ID
+	private String newPwd;// 新密码
+	private String oldPwd;// 原密码
+	private String introduction;// 简介
+	private String newUserName;// 新用户名
+	
 
 	public String getNewUserName() {
 		return newUserName;

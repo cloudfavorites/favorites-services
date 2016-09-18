@@ -1,6 +1,10 @@
 package com.favorites.domain;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.favorites.domain.enums.FollowStatus;
 
@@ -9,5 +13,8 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 	Long countByUserIdAndStatus(Long userId,FollowStatus status);
 	
 	Long countByFollowIdAndStatus(Long followId,FollowStatus status);	
+	
+	@Query("select f.followId from User u,Follow f where u.id=f.userId and f.status='follow' and u.id=:userId")
+	List<Long> findMyFollowIdByUserId(@Param("userId") Long userId);
 
 }

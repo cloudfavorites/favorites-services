@@ -11,7 +11,7 @@ public class UserControllerTest {
 
 
 	//private String baseUrl="http://localhost:9090";
-//	private String baseUrl="http://192.168.0.60:9090";
+//	private String baseUrl="http://192.168.0.59:9090";
 	private String baseUrl="http://localhost:9090";
 	
 
@@ -64,7 +64,7 @@ public class UserControllerTest {
 		String url = baseUrl + "/user/updateUserInfo";
 		Map<String, String> contents = new HashMap<String, String>();
 		contents.put("userId", "10");
-		contents.put("introduction", "超级管理员");
+		contents.put("introduction", "超级管理员10");
 		contents.put("newUserName", "admin");
 		res = SimpleHttpUtils.httpPost(url,contents); 
 		System.out.println(res);
@@ -80,6 +80,7 @@ public class UserControllerTest {
 		String url = baseUrl + "/user/getUserInformation";
 		Map<String, String> contents = new HashMap<String, String>();
 		contents.put("userId", "10");
+		contents.put("myself", "others");
 		res = SimpleHttpUtils.httpPost(url,contents); 
 		System.out.println(res);
 	}

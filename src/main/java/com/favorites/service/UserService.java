@@ -1,27 +1,14 @@
 package com.favorites.service;
+
+import com.favorites.domain.result.Response;
+import com.favorites.domain.result.ResponseData;
+import com.favorites.domain.result.UserInformationResult;
+import com.favorites.param.UserParam;
+
 public interface UserService {
 
-    /**
-     * 新增一个用户
-     * @param name
-     * @param age
-     */
-    void create(String name, Integer age);
-
-    /**
-     * 根据name删除一个用户高
-     * @param name
-     */
-    void deleteByName(String name);
-
-    /**
-     * 获取用户总量
-     */
-    Integer getAllUsers();
-
-    /**
-     * 删除所有用户
-     */
-    void deleteAllUsers();
-
+	public Response updateUserInfo(UserParam userParam);
+	
+	public ResponseData getUserInformation(UserInformationResult ret,UserParam userParam);
+	
 }

@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
+import com.favorites.domain.enums.CollectType;
 import com.favorites.domain.enums.IsDelete;
 
 @Entity
@@ -34,7 +35,8 @@ public class Collect  implements Serializable {
 	@Column(nullable = true)
 	private String charset;
 	@Column(nullable = true)
-	private String type;
+	@Enumerated(EnumType.STRING)
+	private CollectType type;
 	@Column(nullable = true)
 	private String remark;
 	@Column(nullable = false)
@@ -117,11 +119,11 @@ public class Collect  implements Serializable {
 		this.charset = charset;
 	}
 
-	public String getType() {
+	public CollectType getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(CollectType type) {
 		this.type = type;
 	}
 
