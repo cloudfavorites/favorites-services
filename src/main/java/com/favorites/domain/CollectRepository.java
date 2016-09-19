@@ -48,4 +48,6 @@ public interface CollectRepository extends JpaRepository<Collect, Long> {
 	
 	@Query(baseSql+ " and c.type='PUBLIC' and c.userId!=?1 ")
 	Page<CollectView> findExploreView(Long userId,Pageable pageable);
+	
+	Long countByFavoritesIdAndTypeAndIsDelete(Long favoritesId,CollectType type,IsDelete isDelete);
 }
