@@ -141,16 +141,16 @@ public class UserController extends BaseController {
 	
 	@RequestMapping(value="/updateUserInfo",method=RequestMethod.POST)
 	@LoggerManage(description="个人信息修改（简介&用户名）")
-	public Response updateUserInfo(UserParam userParam){
+	public ResponseData updateUserInfo(UserParam userParam){
 		if(null == userParam || null == userParam.getUserId() || StringUtils.isBlank(userParam.getIntroduction()) 
 				|| StringUtils.isBlank(userParam.getNewUserName())){
-			return result(ExceptionMsg.ParamError);
+			return new ResponseData(ExceptionMsg.ParamError);
 		}
 		try {
 			return userService.updateUserInfo(userParam);
 		} catch (Exception e) {
 			logger.error("个人信息修改异常：",e);
-			return result(ExceptionMsg.FAILED);
+			return new ResponseData(ExceptionMsg.FAILED);
 		}
 	}
 	

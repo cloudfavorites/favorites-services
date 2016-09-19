@@ -31,5 +31,15 @@ public class FavoritesServiceImpl implements FavoritesService{
 		favoritesRepository.save(favorites);
 		return favorites;
 	}
+	
+	public Long getFavoritesId(Long userId,String name){
+		Favorites favorites = favoritesRepository.findByUserIdAndName(userId, name);
+		if(null != favorites && null != favorites.getId()){
+			favoritesRepository.increaseCountById(favorites.getId(),DateUtils.getCurrentTime());
+		}else{
+			favorites = saveFavorites(userId, 1l,name);
+		}
+		return favorites.getId();
+	}
 
 }

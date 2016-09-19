@@ -1,5 +1,8 @@
 package com.favorites.service.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,7 +15,6 @@ import com.favorites.domain.enums.CollectType;
 import com.favorites.domain.enums.FollowStatus;
 import com.favorites.domain.enums.IsDelete;
 import com.favorites.domain.result.ExceptionMsg;
-import com.favorites.domain.result.Response;
 import com.favorites.domain.result.ResponseData;
 import com.favorites.domain.result.UserInformationResult;
 import com.favorites.param.UserParam;
@@ -32,25 +34,28 @@ public class UserServiceImpl implements UserService{
 	/**
 	 * 个人信息修改（用户名&简介）
 	 */
-	public Response updateUserInfo(UserParam userParam){
+	public ResponseData updateUserInfo(UserParam userParam){
 		if(userParam.getNewUserName().length() > 12){
-			return new Response(ExceptionMsg.UserNameLengthLimit);
+			return new ResponseData(ExceptionMsg.UserNameLengthLimit);
 		}
 		User user = userRepository.findOne(userParam.getUserId());
 		if(null == user){
-			return new Response(ExceptionMsg.UserNotExist);
+			return new ResponseData(ExceptionMsg.UserNotExist);
 		}
 		if(!user.getUserName().equals(userParam.getNewUserName())){
 			User newUser = userRepository.findByUserName(userParam.getNewUserName());
 			if(null != newUser){
-				return new Response(ExceptionMsg.UserNameUsed);
+				return new ResponseData(ExceptionMsg.UserNameUsed);
 			}
 			userRepository.setUserName(userParam.getNewUserName(), user.getEmail());
 		}
 		if(!userParam.getIntroduction().equals(user.getIntroduction())){
 			userRepository.setIntroduction(userParam.getIntroduction(), user.getEmail());
 		}
-		return new Response(ExceptionMsg.SUCCESS);
+		Map<String, String> resultMap = new HashMap<>();
+		resultMap.put("introduction", userParam.getIntroduction());
+		resultMap.put("newUserName", userParam.getNewUserName());
+		return new ResponseData(ExceptionMsg.SUCCESS,resultMap);
 	}
 	
 	/**
