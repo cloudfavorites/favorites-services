@@ -50,4 +50,7 @@ public interface CollectRepository extends JpaRepository<Collect, Long> {
 	Page<CollectView> findExploreView(Long userId,Pageable pageable);
 	
 	Long countByFavoritesIdAndTypeAndIsDelete(Long favoritesId,CollectType type,IsDelete isDelete);
+	
+	List<Collect> findByFavoritesIdAndUrlAndUserIdAndIsDelete(Long favoritesId,String url,Long userId,IsDelete isDelete);
+
 }

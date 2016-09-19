@@ -63,8 +63,8 @@ public class UserControllerTest {
 		String res = "";
 		String url = baseUrl + "/user/updateUserInfo";
 		Map<String, String> contents = new HashMap<String, String>();
-		contents.put("userId", "10");
-		contents.put("introduction", "超级管理员10");
+		contents.put("userId", "1");
+		contents.put("introduction", "超级管理员20160919");
 		contents.put("newUserName", "admin");
 		res = SimpleHttpUtils.httpPost(url,contents); 
 		System.out.println(res);
