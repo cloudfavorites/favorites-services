@@ -3,9 +3,12 @@ package com.favorites.domain;
 
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import com.favorites.domain.enums.CollectType;
@@ -50,4 +53,12 @@ public interface CollectRepository extends JpaRepository<Collect, Long> {
 	Page<CollectView> findExploreView(Long userId,Pageable pageable);
 	
 	List<Collect> findByFavoritesIdAndUrlAndUserIdAndIsDelete(Long favoritesId,String url,Long userId,IsDelete isDelete);
+	
+	@Transactional
+    Long deleteById(Long id);
+	
+	@Transactional
+	@Modifying
+	@Query("update Collect c set c.type = ?1 where c.id = ?2 and c.userId=?3 ")
+	int modifyByIdAndUserId(CollectType type, Long id, Long userId);
 }
