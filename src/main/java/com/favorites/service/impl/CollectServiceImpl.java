@@ -255,4 +255,58 @@ public class CollectServiceImpl implements CollectService{
 		}
 		return result;
 	}
+	
+	/**
+	 * 删除文章
+	 * @param id
+	 * @param userId
+	 */
+	public void delCollectById(Long id,Long userId){
+		Collect collect = collectRepository.findOne(id);
+		if(null != collect && userId.longValue() == collect.getUserId().longValue()){
+		  collectRepository.deleteById(id);
+		  if(null != collect.getFavoritesId() && !IsDelete.YES.equals(collect.getIsDelete())){
+			 favoritesRepository.reduceCountById(collect.getFavoritesId(), DateUtils.getCurrentTime());
+		  }
+		}
+	}
+	
+	/**
+	 * 点赞与取消点赞
+	 * @param collectId
+	 * @param userId
+	 */
+	public void likeAndUnlike(Long collectId,Long userId){
+		Praise praise=praiseRepository.findByUserIdAndCollectId(userId, collectId);
+		if(null == praise){
+			Praise newPraise=new Praise();
+			newPraise.setUserId(userId);
+			newPraise.setCollectId(collectId);
+			newPraise.setCreateTime(DateUtils.getCurrentTime());
+			praiseRepository.save(newPraise);
+			// 保存消息通知
+			Collect collect = collectRepository.findOne(collectId);
+			if(null != collect){
+				noticeService.saveNotice(String.valueOf(collectId), "praise", collect.getUserId(), String.valueOf(newPraise.getId()));
+			}
+		}else if(praise.getUserId().longValue() == userId.longValue()){
+			praiseRepository.delete(praise.getId());
+		}
+	}
+	
+	/**
+	 * 文章 公开私密 修改
+	 * @param collectId
+	 * @param userId
+	 */
+	public void changePrivacy(Long collectId,Long userId){
+		Collect collect = collectRepository.findOne(collectId);
+		if(null != collect && userId.longValue() == collect.getUserId().longValue()){
+			if(CollectType.PRIVATE.equals(collect.getType())){
+				collectRepository.modifyByIdAndUserId(CollectType.PUBLIC, collectId, userId);
+			}else if(CollectType.PUBLIC.equals(collect.getType())){
+				collectRepository.modifyByIdAndUserId(CollectType.PRIVATE, collectId, userId);
+			}
+		}
+	}
 }

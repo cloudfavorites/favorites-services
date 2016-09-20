@@ -70,4 +70,38 @@ public class CollectControllerTest {
 		res = SimpleHttpUtils.httpPost(url,contents); 
 		System.out.println(res);
 	}
+	
+	@Test
+	public void delCollect(){
+		String res = "";
+		String url = baseUrl + "/delCollect";
+		Map<String, String> contents = new HashMap<String, String>();
+		contents.put("id", "94");
+		contents.put("userId", "1");
+		res = SimpleHttpUtils.httpPost(url,contents); 
+		System.out.println(res);
+	}
+	
+	@Test
+	public void likeAndUnlike(){
+		String res = "";
+		String url = baseUrl + "/likeAndUnlike";
+		Map<String, String> contents = new HashMap<String, String>();
+		contents.put("collectId", "93");
+		contents.put("userId", "3");
+		res = SimpleHttpUtils.httpPost(url,contents); 
+		System.out.println(res);
+	}
+	
+	@Test
+	public void changePrivacy(){
+		String res = "";
+		String url = baseUrl + "/changePrivacy";
+		Map<String, String> contents = new HashMap<String, String>();
+		contents.put("collectId", "93");
+		contents.put("userId", "1");
+		res = SimpleHttpUtils.httpPost(url,contents); 
+		System.out.println(res);
+	}
+	
 }

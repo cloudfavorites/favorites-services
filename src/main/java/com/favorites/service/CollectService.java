@@ -17,5 +17,11 @@ public interface CollectService {
 	public boolean checkCollect(CollectParam collectParam);
 	
 	public CollectDetailResult getCollectDetail(Long id);
+	
+	public void delCollectById(Long id,Long userId);
+	
+	public void likeAndUnlike(Long collectId,Long userId);
+	
+	public void changePrivacy(Long collectId,Long userId);
 
 }

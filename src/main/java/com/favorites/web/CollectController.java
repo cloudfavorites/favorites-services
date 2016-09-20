@@ -79,5 +79,50 @@ public class CollectController extends BaseController{
 			return new ResponseData(ExceptionMsg.FAILED);
 		}
 	}
+	
+	@RequestMapping(value="/delCollect",method=RequestMethod.POST)
+	@LoggerManage(description="文章删除")
+	public Response delCollect(Long userId,Long id) {
+		if(null == id || null == userId){
+			return result(ExceptionMsg.ParamError);
+		}
+		try {
+			collectService.delCollectById(id, userId);
+			return result(ExceptionMsg.SUCCESS);
+		} catch (Exception e) {
+			logger.error("删除文章异常：",e);
+			return result(ExceptionMsg.FAILED);
+		}
+	}
+	
+	@RequestMapping(value="/likeAndUnlike",method=RequestMethod.POST)
+	@LoggerManage(description="点赞&取消点赞")
+	public Response likeAndUnlike(Long collectId,Long userId){
+		if(null == collectId || null == userId){
+			return result(ExceptionMsg.ParamError);
+		}
+		try {
+			collectService.likeAndUnlike(collectId, userId);
+		} catch (Exception e) {
+			logger.error("点赞&取消点赞异常：",e);
+			return result(ExceptionMsg.FAILED);
+		}
+		return result();
+	}
+	
+	@RequestMapping(value="/changePrivacy",method=RequestMethod.POST)
+	@LoggerManage(description="文章公开私密修改")
+	public Response changePrivacy(Long collectId,Long userId){
+		if(null == collectId || null == userId){
+			return result(ExceptionMsg.ParamError);
+		}
+		try {
+			collectService.changePrivacy(collectId, userId);
+		} catch (Exception e) {
+			logger.error("文章公开私密修改异常：",e);
+			return result(ExceptionMsg.FAILED);
+		}
+		return result();
+	}
 
 }
