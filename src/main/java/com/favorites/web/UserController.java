@@ -26,6 +26,7 @@ import com.favorites.domain.Config;
 import com.favorites.domain.ConfigRepository;
 import com.favorites.domain.Favorites;
 import com.favorites.domain.FavoritesRepository;
+import com.favorites.domain.FollowRepository;
 import com.favorites.domain.User;
 import com.favorites.domain.UserRepository;
 import com.favorites.domain.result.ExceptionMsg;
@@ -53,6 +54,8 @@ public class UserController extends BaseController {
 	private FavoritesRepository favoritesRepository;
 	@Autowired
 	private ConfigRepository configRepository;
+	@Autowired
+	private FollowRepository followRepository;
 	@Resource
     private JavaMailSender mailSender;
 	@Value("${spring.mail.username}")
@@ -283,6 +286,32 @@ public class UserController extends BaseController {
 			return new ResponseData(ExceptionMsg.SUCCESS,favoritesList);
 		} catch (Exception e) {
 			logger.error("获取用户收藏夹异常：",e);
+			return new ResponseData(ExceptionMsg.FAILED);
+		}
+	}
+	
+	/**
+	 * 获取用户关注、粉丝
+	 * @param userId
+	 * @param follow
+	 * @return
+	 */
+	@RequestMapping(value="/getFollowFollowed",method=RequestMethod.POST)
+	@LoggerManage(description="获取用户关注、粉丝")
+	public ResponseData getFollowFollowed(Long userId, String follow){
+		if(null == userId || StringUtils.isBlank(follow)){
+			return new ResponseData(ExceptionMsg.ParamError);
+		}
+		try {
+			List<String> userList = null;
+			if("follow".equals(follow)){
+				userList = followRepository.findFollowUserByUserId(userId); 
+			}else{
+				userList = followRepository.findFollowedUserByFollowId(userId);
+			}
+			return new ResponseData(ExceptionMsg.SUCCESS,userList);
+		} catch (Exception e) {
+			logger.error("获取用户关注、粉丝：",e);
 			return new ResponseData(ExceptionMsg.FAILED);
 		}
 	}
