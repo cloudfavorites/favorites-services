@@ -113,4 +113,17 @@ public class UserControllerTest {
 		System.out.println(res);
 	}
 	
+	/**
+	 * 获取用户收藏夹
+	 */
+	@Test
+	public void getUserFavorites(){
+		String url = baseUrl + "/user/getUserFavorites";
+		Map<String, Object> contents = new HashMap<String, Object>();
+		contents.put("userId",1);
+		contents.put("myself","myself");
+		String res = SimpleHttpUtils.httpPost(url,contents); 
+		System.out.println(res);
+	}
+	
 }

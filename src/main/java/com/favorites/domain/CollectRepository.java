@@ -52,6 +52,8 @@ public interface CollectRepository extends JpaRepository<Collect, Long> {
 	@Query(baseSql+ " and c.type='PUBLIC' and c.userId!=?1 ")
 	Page<CollectView> findExploreView(Long userId,Pageable pageable);
 	
+	Long countByFavoritesIdAndTypeAndIsDelete(Long favoritesId,CollectType type,IsDelete isDelete);
+	
 	List<Collect> findByFavoritesIdAndUrlAndUserIdAndIsDelete(Long favoritesId,String url,Long userId,IsDelete isDelete);
 	
 	@Transactional
@@ -60,5 +62,4 @@ public interface CollectRepository extends JpaRepository<Collect, Long> {
 	@Transactional
 	@Modifying
 	@Query("update Collect c set c.type = ?1 where c.id = ?2 and c.userId=?3 ")
-	int modifyByIdAndUserId(CollectType type, Long id, Long userId);
-}
+	int modifyByIdAndUserId(CollectType type, Long id, Long userId);}
