@@ -139,4 +139,17 @@ public class UserControllerTest {
 		System.out.println(res);
 	}
 	
+	/**
+	 * 关注&取消关注
+	 */
+	@Test
+	public void changeFollowStatus(){
+		String url = baseUrl + "/user/changeFollowStatus";
+		Map<String, Object> contents = new HashMap<String, Object>();
+		contents.put("userId",1L);
+		contents.put("followUserId",8L);
+		String res = SimpleHttpUtils.httpPost(url,contents); 
+		System.out.println(res);
+	}
+	
 }

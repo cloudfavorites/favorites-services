@@ -26,9 +26,11 @@ import com.favorites.domain.Config;
 import com.favorites.domain.ConfigRepository;
 import com.favorites.domain.Favorites;
 import com.favorites.domain.FavoritesRepository;
+import com.favorites.domain.Follow;
 import com.favorites.domain.FollowRepository;
 import com.favorites.domain.User;
 import com.favorites.domain.UserRepository;
+import com.favorites.domain.enums.FollowStatus;
 import com.favorites.domain.result.ExceptionMsg;
 import com.favorites.domain.result.LoginResult;
 import com.favorites.domain.result.Response;
@@ -314,6 +316,37 @@ public class UserController extends BaseController {
 			logger.error("获取用户关注、粉丝：",e);
 			return new ResponseData(ExceptionMsg.FAILED);
 		}
+	}
+	
+	/**
+	 * 关注&取消关注
+	 * @return
+	 */
+	@RequestMapping(value="/changeFollowStatus",method=RequestMethod.POST)
+	@LoggerManage(description="关注&取消关注")
+	public Response changeFollowStatus(Long userId,Long followUserId){
+		try {
+			Follow follow = followRepository.findByUserIdAndFollowId(userId, followUserId);
+			FollowStatus status = FollowStatus.FOLLOW;
+			if(null != follow){
+				if(FollowStatus.FOLLOW == follow.getStatus()){
+					status = FollowStatus.UNFOLLOW;
+				}
+				followRepository.updateStatusById(status, DateUtils.getCurrentTime(), follow.getId());
+			}else{
+				follow = new Follow();
+				follow.setFollowId(followUserId);
+				follow.setUserId(userId);
+				follow.setStatus(status);
+				follow.setCreateTime(DateUtils.getCurrentTime());
+				follow.setLastModifyTime(DateUtils.getCurrentTime());
+				followRepository.save(follow);
+			}
+		} catch (Exception e) {
+			logger.error("关注&取消关注异常：",e);
+			return result(ExceptionMsg.FAILED);
+		}
+		return result();
 	}
 	
 }
