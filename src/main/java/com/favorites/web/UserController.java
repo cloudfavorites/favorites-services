@@ -325,6 +325,9 @@ public class UserController extends BaseController {
 	@RequestMapping(value="/changeFollowStatus",method=RequestMethod.POST)
 	@LoggerManage(description="关注&取消关注")
 	public Response changeFollowStatus(Long userId,Long followUserId){
+		if(null == userId || null == followUserId){
+			return new ResponseData(ExceptionMsg.ParamError);
+		}
 		try {
 			Follow follow = followRepository.findByUserIdAndFollowId(userId, followUserId);
 			FollowStatus status = FollowStatus.FOLLOW;
