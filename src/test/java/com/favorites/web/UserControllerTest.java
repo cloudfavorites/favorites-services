@@ -127,7 +127,7 @@ public class UserControllerTest {
 	}
 	
 	/**
-	 * 获取用户收藏夹
+	 * 获取用户关注、粉丝
 	 */
 	@Test
 	public void getFollowFollowed(){

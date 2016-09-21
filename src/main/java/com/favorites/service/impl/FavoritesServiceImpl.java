@@ -58,23 +58,11 @@ public class FavoritesServiceImpl implements FavoritesService{
 	@Override
 	public List<Favorites> getUserFavorites(Long userId, String myself) {
 		List<Favorites> favoritesList = favoritesRepository.findByUserId(userId);
-		Long collectCount = 0l;
-		if("myself".equals(myself)){
-			collectCount = collectRepository.countByUserIdAndIsDelete(userId, IsDelete.NO);
-		}else {
-			collectCount = collectRepository.countByUserIdAndIsDeleteAndType(userId, IsDelete.NO, CollectType.PUBLIC);
+		if(!"myself".equals(myself)){
 			for(Favorites favorites:favoritesList){
 				favorites.setCount(collectRepository.countByFavoritesIdAndTypeAndIsDelete(favorites.getId(), CollectType.PUBLIC, IsDelete.NO));
 			}
 		}
-		Favorites favorites = new Favorites();
-		favorites.setId(0L);
-		favorites.setCount(collectCount);
-		favorites.setName("全部收藏");
-		favorites.setUserId(userId);
-		favorites.setCreateTime(DateUtils.getCurrentTime());
-		favorites.setLastModifyTime(DateUtils.getCurrentTime());
-		favoritesList.add(0,favorites);
 		return favoritesList;
 	}
 
