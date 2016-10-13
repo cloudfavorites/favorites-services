@@ -218,6 +218,7 @@ public class UserController extends BaseController {
 		}
 		try {
 			BeanUtils.copyProperties(user, ret);
+			ret.setUserId(user.getId());
 			ret.setProfilePicture(webPath + user.getProfilePicture());
 			return userService.getUserInformation(ret, userParam);
 		} catch (Exception e) {

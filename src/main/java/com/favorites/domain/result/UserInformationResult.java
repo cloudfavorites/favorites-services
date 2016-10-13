@@ -2,6 +2,7 @@ package com.favorites.domain.result;
 
 public class UserInformationResult {
 	
+	private Long userId;// 用户ID
 	private String userName;// 用户名
 	private String introduction;// 简介
 	private String email;// 邮箱
@@ -9,6 +10,12 @@ public class UserInformationResult {
 	private Long collectCount;// 收藏数
 	private Long followedCount;// 粉丝数
 	private Long followCount;// 关注数
+	public Long getUserId() {
+		return userId;
+	}
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
 	public String getUserName() {
 		return userName;
 	}
