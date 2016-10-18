@@ -1,11 +1,10 @@
 package com.favorites.web;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.favorites.comm.utils.SimpleHttpUtils;
 import org.junit.Test;
 
-import com.favorites.comm.utils.SimpleHttpUtils;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UserControllerTest {
 
@@ -21,7 +20,7 @@ public class UserControllerTest {
 			String url = baseUrl+"/user/login";
 			Map<String, String> contents = new HashMap<String, String>();
 			contents.put("userName", "admin");
-			contents.put("passWord", "222222");
+			contents.put("passWord", "111111");
 			res = SimpleHttpUtils.httpPost(url,contents); 
 			System.out.println("***********************8");
 			System.out.println(res);
@@ -79,8 +78,9 @@ public class UserControllerTest {
 		String res = "";
 		String url = baseUrl + "/user/getUserInformation";
 		Map<String, String> contents = new HashMap<String, String>();
-		contents.put("userId", "10");
-		contents.put("myself", "others");
+		contents.put("userId", "1");
+		contents.put("myself", "myself");
+		contents.put("authorization","1_79db83412a19956d3271246eb9b25961");
 		res = SimpleHttpUtils.httpPost(url,contents); 
 		System.out.println(res);
 	}
@@ -149,6 +149,19 @@ public class UserControllerTest {
 		contents.put("userId",1L);
 		contents.put("followUserId",8L);
 		String res = SimpleHttpUtils.httpPost(url,contents); 
+		System.out.println(res);
+	}
+
+	/**
+	 * 关注&取消关注
+	 */
+	@Test
+	public void testTimer(){
+		String url = "http://192.168.0.120:8180/zx-timer/runTask/runSendInterest";
+		//Map<String, Object> contents = new HashMap<String, Object>();
+		/*contents.put("userId",1L);
+		contents.put("followUserId",8L);*/
+		String res = SimpleHttpUtils.httpPost(url,null);
 		System.out.println(res);
 	}
 	

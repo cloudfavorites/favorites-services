@@ -5,6 +5,7 @@ public enum ExceptionMsg {
 	SUCCESS("000000", "操作成功"),
 	FAILED("999999","操作失败"),
     ParamError("000001", "参数错误！"),
+    TokenTimeOut("000002","登陆超时"),
     
     LoginNameOrPassWordError("000100", "用户名或者密码错误！"),
     EmailUsed("000101","该邮箱已被注册"),

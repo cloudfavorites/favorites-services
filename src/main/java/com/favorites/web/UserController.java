@@ -1,12 +1,19 @@
 package com.favorites.web;
 
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.UUID;
-
-import javax.annotation.Resource;
-import javax.mail.internet.MimeMessage;
-
+import com.favorites.comm.Const;
+import com.favorites.comm.aop.LoggerManage;
+import com.favorites.comm.authorization.manager.TokenManager;
+import com.favorites.comm.authorization.model.TokenModel;
+import com.favorites.comm.utils.DateUtils;
+import com.favorites.comm.utils.MD5Util;
+import com.favorites.comm.utils.MessageUtil;
+import com.favorites.domain.*;
+import com.favorites.domain.enums.FollowStatus;
+import com.favorites.domain.result.*;
+import com.favorites.param.UserParam;
+import com.favorites.service.ConfigService;
+import com.favorites.service.FavoritesService;
+import com.favorites.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,29 +24,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.favorites.comm.Const;
-import com.favorites.comm.aop.LoggerManage;
-import com.favorites.comm.utils.DateUtils;
-import com.favorites.comm.utils.MD5Util;
-import com.favorites.comm.utils.MessageUtil;
-import com.favorites.domain.Config;
-import com.favorites.domain.ConfigRepository;
-import com.favorites.domain.Favorites;
-import com.favorites.domain.FavoritesRepository;
-import com.favorites.domain.Follow;
-import com.favorites.domain.FollowRepository;
-import com.favorites.domain.User;
-import com.favorites.domain.UserRepository;
-import com.favorites.domain.enums.FollowStatus;
-import com.favorites.domain.result.ExceptionMsg;
-import com.favorites.domain.result.LoginResult;
-import com.favorites.domain.result.Response;
-import com.favorites.domain.result.ResponseData;
-import com.favorites.domain.result.UserInformationResult;
-import com.favorites.param.UserParam;
-import com.favorites.service.ConfigService;
-import com.favorites.service.FavoritesService;
-import com.favorites.service.UserService;
+import javax.annotation.Resource;
+import javax.mail.internet.MimeMessage;
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
@@ -68,6 +57,8 @@ public class UserController extends BaseController {
 	private String mailContent;
 	@Value("${favorites.web.path}")
 	private String webPath;
+	@Autowired
+	private TokenManager tokenManager;
 	
 	
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
@@ -83,7 +74,8 @@ public class UserController extends BaseController {
 			LoginResult ret=new LoginResult();
 			ret.setUserId(loginUser.getId());
 			ret.setUserName(loginUser.getUserName());
-			ret.setToken(getSession().getId());
+			TokenModel model = tokenManager.createToken(loginUser);
+			ret.setToken(model.getToken());
 			return new ResponseData(ExceptionMsg.SUCCESS,ret);
 		} catch (Exception e) {
 			// TODO: handle exception
