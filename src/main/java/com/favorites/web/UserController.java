@@ -273,27 +273,6 @@ public class UserController extends BaseController {
 	}
 	
 	/**
-	 * 获取用户收藏夹
-	 * @param userId
-	 * @param myself
-	 * @return
-	 */
-	@RequestMapping(value="/getUserFavorites",method=RequestMethod.POST)
-	@LoggerManage(description="获取用户收藏夹")
-	public ResponseData getUserFavorites(Long userId, String myself){
-		if(null == userId || StringUtils.isBlank(myself)){
-			return new ResponseData(ExceptionMsg.ParamError);
-		}
-		try {
-			List<Favorites> favoritesList = favoritesService.getUserFavorites(userId, myself);
-			return new ResponseData(ExceptionMsg.SUCCESS,favoritesList);
-		} catch (Exception e) {
-			logger.error("获取用户收藏夹异常：",e);
-			return new ResponseData(ExceptionMsg.FAILED);
-		}
-	}
-	
-	/**
 	 * 获取用户关注、粉丝
 	 * @param userId
 	 * @param follow
