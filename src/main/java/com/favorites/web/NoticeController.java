@@ -107,7 +107,9 @@ public class NoticeController extends BaseController{
 		}
 		try {
 			int counts = noticeRepository.updateReadedByUserId("read", userId, type);
-			return new ResponseData(ExceptionMsg.SUCCESS, counts);
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("counts", counts);
+			return new ResponseData(ExceptionMsg.SUCCESS, map);
 		} catch (Exception e) {
 			logger.error("更新消息为已读异常：",e);
 			return new ResponseData(ExceptionMsg.FAILED);
