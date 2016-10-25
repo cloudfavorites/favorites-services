@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
@@ -165,7 +164,7 @@ public class SFTPFileUtil {
     }  
   
     /** 
-     * 将byte[]上传到sftp，作为文件。注意:从String生成byte[]是，要指定字符集。 
+     * 将byte[]上传到sftp，作为文件注意从String生成byte[]时，要指定字符集
      *  
      * @param directory 上传到sftp目录 
      * @param sftpFileName 文件在sftp端的命名 
