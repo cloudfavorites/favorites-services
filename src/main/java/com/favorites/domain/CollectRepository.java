@@ -69,4 +69,10 @@ public interface CollectRepository extends JpaRepository<Collect, Long> {
 	@Query("delete from Collect where favoritesId = ?1")
 	void deleteByFavoritesId(Long favoritesId);
 	
+	@Query(baseSql+ " and c.userId=?1 and ( c.title like ?2 or c.description like ?2) ")
+	Page<CollectView> searchMyByKey(Long userId,String key,Pageable pageable);
+	
+	@Query(baseSql+ " and c.type='public' and c.userId!=?1 and ( c.title like ?2 or c.description like ?2) ")
+	Page<CollectView> searchOtherByKey(Long userId, String key,Pageable pageable);
+	
 }

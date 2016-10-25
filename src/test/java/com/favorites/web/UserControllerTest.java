@@ -22,7 +22,7 @@ public class UserControllerTest {
 			contents.put("userName", "admin");
 			contents.put("passWord", "111111");
 			res = SimpleHttpUtils.httpPost(url,contents); 
-			System.out.println("***********************8");
+			System.out.println("***********************");
 			System.out.println(res);
 	}
 
@@ -157,12 +157,25 @@ public class UserControllerTest {
 	 */
 	@Test
 	public void testTimer(){
-		String url = "http://192.168.0.120:8180/zx-timer/runTask/runSendInterest";
-		//Map<String, Object> contents = new HashMap<String, Object>();
-		/*contents.put("userId",1L);
-		contents.put("followUserId",8L);*/
-		String res = SimpleHttpUtils.httpPost(url,null);
+		String url = baseUrl + "/user/changeFollowStatus";
+		Map<String, Object> contents = new HashMap<String, Object>();
+		contents.put("authorization", "1_effb7df228b59e4db1e08667d882a6c3");
+		contents.put("userId",1L);
+		contents.put("followUserId",8L);
+		String res = SimpleHttpUtils.httpPost(url,contents);
 		System.out.println(res);
 	}
 	
+	/**
+	 * 上传头像
+	 */
+	@Test
+	public void uploadHeadPortrait(){
+		String url = baseUrl + "/user/uploadHeadPortrait";
+		Map<String, Object> contents = new HashMap<String, Object>();
+		contents.put("authorization", "1_effb7df228b59e4db1e08667d882a6c3");
+		contents.put("userId",1L);
+		String res = SimpleHttpUtils.httpPost(url,contents);
+		System.out.println(res);
+	}
 }

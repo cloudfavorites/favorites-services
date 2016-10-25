@@ -104,4 +104,17 @@ public class CollectControllerTest {
 		System.out.println(res);
 	}
 	
+	@Test
+	public void searchByKey() {
+		String res = "";
+		String url = baseUrl + "/search";
+		Map<String, String> contents = new HashMap<String, String>();
+		contents.put("authorization", "1_5825b3ce0f9c7585bc04866d12b92348");
+		contents.put("userId", "1");
+		contents.put("myself", "other");
+		contents.put("key", "电影");
+		res = SimpleHttpUtils.httpPost(url, contents);
+		System.out.println(res);
+	}
+	
 }

@@ -23,5 +23,9 @@ public interface CollectService {
 	public void likeAndUnlike(Long collectId,Long userId);
 	
 	public void changePrivacy(Long collectId,Long userId);
+	
+	public List<CollectSummary> searchMy(Long userId,String key,Pageable pageable);
+	
+	public List<CollectSummary> searchOther(Long userId,String key,Pageable pageable);
 
 }

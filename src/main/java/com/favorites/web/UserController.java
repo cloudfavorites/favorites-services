@@ -7,6 +7,7 @@ import com.favorites.comm.authorization.model.TokenModel;
 import com.favorites.comm.utils.DateUtils;
 import com.favorites.comm.utils.MD5Util;
 import com.favorites.comm.utils.MessageUtil;
+import com.favorites.comm.utils.SFTPFileUtil;
 import com.favorites.domain.*;
 import com.favorites.domain.enums.FollowStatus;
 import com.favorites.domain.result.*;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.mail.internet.MimeMessage;
+
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
@@ -57,6 +59,18 @@ public class UserController extends BaseController {
 	private String mailContent;
 	@Value("${favorites.web.path}")
 	private String webPath;
+	@Value("${sftp.req.host}")
+	private String host;
+	@Value("${sftp.req.port}")
+	private int port;
+	@Value("${sftp.req.username}")
+	private String username;
+	@Value("${sftp.req.password}")
+	private String password;
+	@Value("${file.headportrait.upload.path}")
+	private String uploadPath;
+	@Value("${file.headportrait.save.path}")
+	private String savePath;
 	@Autowired
 	private TokenManager tokenManager;
 	
@@ -285,7 +299,7 @@ public class UserController extends BaseController {
 			}
 			return new ResponseData(ExceptionMsg.SUCCESS,userList);
 		} catch (Exception e) {
-			logger.error("获取用户关注、粉丝：",e);
+			logger.error("获取用户关注、粉丝异常：",e);
 			return new ResponseData(ExceptionMsg.FAILED);
 		}
 	}
@@ -322,6 +336,27 @@ public class UserController extends BaseController {
 			return result(ExceptionMsg.FAILED);
 		}
 		return result();
+	}
+	
+	@RequestMapping(value="/uploadHeadPortrait",method=RequestMethod.POST)
+	@LoggerManage(description="上传头像")
+	public Response uploadHeadPortrait(Long userId, byte[] fileBytes){
+		if(null == userId || null == fileBytes || fileBytes.length == 0){
+			return new ResponseData(ExceptionMsg.ParamError);
+		}
+		try {
+			String fileName=UUID.randomUUID().toString()+".png";
+			String fileSavePath = savePath+fileName;
+			SFTPFileUtil sftp =  new SFTPFileUtil(username, password, host, port);
+			sftp.login();
+	        sftp.upload(uploadPath, fileName, fileBytes);
+	        sftp.logout(); 
+	        userRepository.setProfilePicture(fileSavePath, userId);
+			return new Response(ExceptionMsg.SUCCESS);
+		} catch (Exception e) {
+			logger.error("上传头像异常：",e);
+			return new Response(ExceptionMsg.FAILED);
+		}
 	}
 	
 }

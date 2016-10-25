@@ -309,4 +309,18 @@ public class CollectServiceImpl implements CollectService{
 			}
 		}
 	}
+	
+	@Override
+	public List<CollectSummary> searchMy(Long userId,String key,Pageable pageable) {
+		// TODO Auto-generated method stub
+		Page<CollectView> views = collectRepository.searchMyByKey(userId,"%"+key+"%",pageable);
+		return convertCollect(views,userId);
+	}
+	
+	@Override
+	public List<CollectSummary> searchOther(Long userId,String key,Pageable pageable) {
+		// TODO Auto-generated method stub
+		Page<CollectView> views = collectRepository.searchOtherByKey(userId, "%"+key+"%", pageable);
+		return convertCollect(views,userId);
+	}
 }

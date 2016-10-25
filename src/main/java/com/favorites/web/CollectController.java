@@ -19,6 +19,7 @@ import com.favorites.domain.result.ExceptionMsg;
 import com.favorites.domain.result.Response;
 import com.favorites.domain.result.ResponseData;
 import com.favorites.param.CollectParam;
+import com.favorites.param.SearchParam;
 import com.favorites.service.CollectService;
 
 @RestController
@@ -125,4 +126,22 @@ public class CollectController extends BaseController{
 		return result();
 	}
 
+	@RequestMapping(value="/search",method=RequestMethod.POST)
+	@LoggerManage(description="搜索")
+	public ResponseData search(SearchParam searchParam) {
+		Sort sort = new Sort(Direction.DESC, "id");
+		try {
+			Pageable pageable = new PageRequest(searchParam.getPage(), searchParam.getSize(), sort);
+			List<CollectSummary> collectList = null;
+			if("myself".equals(searchParam.getMyself())){
+				collectList = collectService.searchMy(searchParam.getUserId(),searchParam.getKey() ,pageable);
+			}else{
+				collectList = collectService.searchOther(searchParam.getUserId(), searchParam.getKey(), pageable);
+			}
+		    return new ResponseData(ExceptionMsg.SUCCESS,collectList);
+		} catch (Exception e) {
+			logger.error("搜索异常：",e);
+			return new ResponseData(ExceptionMsg.FAILED);
+		}  
+	}
 }
