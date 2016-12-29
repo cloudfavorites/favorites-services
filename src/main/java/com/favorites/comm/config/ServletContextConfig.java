@@ -29,6 +29,7 @@ public class ServletContextConfig extends WebMvcConfigurationSupport{
                 .addPathPatterns("/**")
                 .excludePathPatterns("/user/login")
                 .excludePathPatterns("/user/register")
-                .excludePathPatterns("/user/sendForgotPasswordEmail");
+                .excludePathPatterns("/user/sendForgotPasswordEmail")
+                .excludePathPatterns("/collect/getExploreCollectList");
     }
 }

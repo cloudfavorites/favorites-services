@@ -9,8 +9,8 @@ import java.util.Map;
 public class CollectControllerTest {
 	
 //	private String baseUrl="http://localhost:9090";
-//	private String baseUrl="http://192.168.0.59:9090/collect";
-	private String baseUrl="http://localhost:9090/collect";
+	private String baseUrl="http://192.168.0.59:9090/collect";
+//	private String baseUrl="http://localhost:9090/collect";
 
 	/**
 	 * 获取文章列表
@@ -33,6 +33,17 @@ public class CollectControllerTest {
 		contents.put("type", "explore");
 		//contents.put("favoritesId", "62");
 		res = SimpleHttpUtils.httpPost(url,contents); 
+		System.out.println(res);
+	}
+
+	@Test
+	public void getExploreCollectList(){
+		String res = "";
+		String url = baseUrl + "/getExploreCollectList";
+		Map<String, String> contents = new HashMap<String, String>();
+		contents.put("page", "0");
+		//contents.put("favoritesId", "62");
+		res = SimpleHttpUtils.httpPost(url,contents);
 		System.out.println(res);
 	}
 	

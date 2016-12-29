@@ -1,17 +1,5 @@
 package com.favorites.web;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.favorites.comm.aop.LoggerManage;
 import com.favorites.domain.CollectSummary;
 import com.favorites.domain.result.CollectDetailResult;
@@ -21,6 +9,16 @@ import com.favorites.domain.result.ResponseData;
 import com.favorites.param.CollectParam;
 import com.favorites.param.SearchParam;
 import com.favorites.service.CollectService;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 @RestController
 @RequestMapping("/collect")
@@ -40,6 +38,25 @@ public class CollectController extends BaseController{
 	    try {
 	    	Pageable pageable = new PageRequest(collectParam.getPage(), collectParam.getSize(), sort);
 		    List<CollectSummary> collectList = collectService.getCollects(pageable, collectParam);
+			return new ResponseData(ExceptionMsg.SUCCESS,collectList);
+		} catch (Exception e) {
+			logger.error("获取文章了列表异常：",e);
+			return new ResponseData(ExceptionMsg.FAILED);
+		}
+	}
+
+	@RequestMapping(value="/getExploreCollectList",method=RequestMethod.POST)
+	@LoggerManage(description = "发现页面文章获取")
+	public ResponseData getExploreCollectList(CollectParam collectParam){
+		if(null == collectParam || null == collectParam.getPage()){
+			return new ResponseData(ExceptionMsg.ParamError);
+		}
+		Sort sort = new Sort(Direction.DESC, "id");
+		collectParam.setType("explore");
+		collectParam.setMyself("myself");
+		try {
+			Pageable pageable = new PageRequest(collectParam.getPage(), collectParam.getSize(), sort);
+			List<CollectSummary> collectList = collectService.getCollects(pageable, collectParam);
 			return new ResponseData(ExceptionMsg.SUCCESS,collectList);
 		} catch (Exception e) {
 			logger.error("获取文章了列表异常：",e);

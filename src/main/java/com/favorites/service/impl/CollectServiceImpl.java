@@ -1,10 +1,15 @@
 package com.favorites.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Resource;
-
+import com.favorites.comm.utils.DateUtils;
+import com.favorites.comm.utils.StringUtil;
+import com.favorites.domain.*;
+import com.favorites.domain.enums.CollectType;
+import com.favorites.domain.enums.IsDelete;
+import com.favorites.domain.result.CollectDetailResult;
+import com.favorites.param.CollectParam;
+import com.favorites.service.CollectService;
+import com.favorites.service.FavoritesService;
+import com.favorites.service.NoticeService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -13,27 +18,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.favorites.comm.utils.DateUtils;
-import com.favorites.comm.utils.StringUtil;
-import com.favorites.domain.Collect;
-import com.favorites.domain.CollectRepository;
-import com.favorites.domain.CollectSummary;
-import com.favorites.domain.CollectView;
-import com.favorites.domain.CommentRepository;
-import com.favorites.domain.Favorites;
-import com.favorites.domain.FavoritesRepository;
-import com.favorites.domain.FollowRepository;
-import com.favorites.domain.Praise;
-import com.favorites.domain.PraiseRepository;
-import com.favorites.domain.User;
-import com.favorites.domain.UserRepository;
-import com.favorites.domain.enums.CollectType;
-import com.favorites.domain.enums.IsDelete;
-import com.favorites.domain.result.CollectDetailResult;
-import com.favorites.param.CollectParam;
-import com.favorites.service.CollectService;
-import com.favorites.service.FavoritesService;
-import com.favorites.service.NoticeService;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service("collectService")
 public class CollectServiceImpl implements CollectService{
@@ -60,7 +47,7 @@ public class CollectServiceImpl implements CollectService{
 	/**
 	 * 文章列表获取
 	 */
-	public List<CollectSummary> getCollects(Pageable pageable,CollectParam collectParam) {
+	public List<CollectSummary>  getCollects(Pageable pageable,CollectParam collectParam) {
 		Page<CollectView> views = null;
 		if ("myselfhome".equalsIgnoreCase(collectParam.getMyself() + collectParam.getType())) {
 			List<Long> userIds=followRepository.findMyFollowIdByUserId(collectParam.getUserId());
@@ -72,7 +59,11 @@ public class CollectServiceImpl implements CollectService{
 		}else if("myselfcenterpage".equalsIgnoreCase(collectParam.getMyself() + collectParam.getType())){
 			views = collectRepository.findViewByUserId(collectParam.getUserId(), pageable);
 		} else if ("myselfexplore".equalsIgnoreCase(collectParam.getMyself()+collectParam.getType())) {
-			views = collectRepository.findExploreView(collectParam.getUserId(),pageable);
+			if(null == collectParam.getUserId()){
+                views = collectRepository.findExploreView(pageable);
+            }else{
+                views = collectRepository.findExploreViewByUserId(collectParam.getUserId(),pageable);
+            }
 		} else if("otherscenterpage".equalsIgnoreCase(collectParam.getType())){
 			views = collectRepository.findViewByUserIdAndType(collectParam.getUserId(), pageable, CollectType.PUBLIC);
 		} else if("othersfavorites".equalsIgnoreCase(collectParam.getType())){
@@ -88,7 +79,7 @@ public class CollectServiceImpl implements CollectService{
 	/**
 	 * @author neo
 	 * @date 2016年8月11日
-	 * @param collects
+	 * @param views,userId
 	 * @return
 	 */
 	private List<CollectSummary> convertCollect(Page<CollectView> views,Long userId) {
@@ -193,8 +184,7 @@ public class CollectServiceImpl implements CollectService{
 
 	/**
 	 * 验证是否重复收藏
-	 * @param collect
-	 * @param userId
+	 * @param collectParam
 	 * @return
 	 */
 	public boolean checkCollect(CollectParam collectParam){
